@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!-- saved from url=(0060)file:///C:/Users/luise/Downloads/community-engagement_4.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Engagement Dashboard — Easca Consulting</title>
+<script src="./community-engagement_files/chart.umd.js.download"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#263044;
+  --teal:#4db89e;
+  --teal2:#3a9d85;
+  --amber:#B7791F;
+  --red:#C0392B;
+  --red-bg:#FCECEA;
+  --amber-bg:#FEF3E2;
+  --green:#3a9d85;
+  --green-bg:#EBF8F5;
+  --grey:#a0aec0;
+  --bg:#1E2535;
+  --card:#fff;
+  --faint:#F5F7FA;
+  --muted:#8A95A8;
+  --divider:#E8EBF0;
+  --body:#263044;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --shadow:0 4px 24px rgba(0,0,0,0.28);
+  --radius:12px;
+}
+
+html,body{
+  min-height:100vh;
+  background:var(--bg);
+  font-family:var(--font);
+  color:var(--body);
+  font-size:13px;
+  padding:24px 16px 40px;
+}
+
+/* ── PAGE SHELL ── */
+.page-shell{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.page-card{
+  width:100%;
+  max-width:1100px;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:var(--navy);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:8px}
+.bmark{display:flex;align-items:flex-end;gap:2.5px;height:16px}
+.bmark span{background:var(--teal);border-radius:1px;width:3px}
+.bname{font-size:11px;font-weight:700;letter-spacing:0.13em;color:#fff}
+.btag{font-size:8px;color:var(--teal);letter-spacing:0.13em;margin-top:2px}
+.hdiv{width:1px;height:20px;background:rgba(255,255,255,0.15)}
+.htitle{font-size:14px;font-weight:600;color:#fff}
+.hmeta{font-size:11px;color:rgba(255,255,255,0.4)}
+
+/* Viewing bar */
+.hdr-bar{
+  background:rgba(255,255,255,0.05);
+  padding:8px 24px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.hdr-viewing{display:flex;align-items:center;gap:6px}
+.hbar-dot{width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.hbar-lbl{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.05em}
+.hbar-val{font-size:10px;color:var(--teal);font-weight:600}
+.hbar-note{font-size:10px;color:rgba(255,255,255,0.25);font-style:italic}
+
+/* ── DASH BODY ── */
+.dash{
+  padding:16px 20px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* ── KPI ROW ── */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--divider);
+  border:1px solid var(--divider);
+  border-radius:8px;
+  overflow:hidden;
+}
+.kc{
+  background:var(--card);
+  padding:14px 16px;
+  position:relative;
+}
+.kc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kc.k-teal::after{background:var(--teal)}
+.kc.k-navy::after{background:var(--navy)}
+.kc.k-amber::after{background:var(--amber)}
+.kc.k-red::after{background:var(--red)}
+.kc-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:6px}
+.kc-val{font-size:28px;font-weight:300;line-height:1;letter-spacing:-1px;color:var(--body);margin-bottom:4px}
+.kc-sub{font-size:11px;color:var(--muted)}
+
+/* ── MID ROW ── */
+.mid{display:grid;grid-template-columns:200px 1fr;gap:12px}
+
+/* Card base */
+.card{background:var(--card);border-radius:8px;border:1px solid var(--divider);padding:14px 16px}
+.clabel{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:12px}
+
+/* Donut */
+.donut-wrap{position:relative;display:flex;justify-content:center;margin-bottom:12px}
+.donut-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.dn{font-size:20px;font-weight:300;color:var(--navy);letter-spacing:-1px;line-height:1}
+.dl{font-size:9px;color:var(--muted);margin-top:2px}
+.leg{display:flex;flex-direction:column;gap:6px}
+.leg-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.leg-l{display:flex;align-items:center;gap:7px}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.leg-name{font-size:11px;color:var(--muted)}
+.leg-pct{font-size:11px;font-weight:600;color:var(--body)}
+
+/* Sentiment card — two columns */
+.sent-card{
+  background:var(--card);
+  border-radius:8px;
+  border:1px solid var(--divider);
+  display:grid;
+  grid-template-columns:1fr 1px 280px;
+  overflow:hidden;
+}
+.sent-divider{background:var(--divider);align-self:stretch}
+
+.trend-col{display:flex;flex-direction:column;padding:14px 18px}
+.trend-title{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:3px}
+.trend-sub{font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.trend-chart{flex:1;position:relative;min-height:160px}
+.trend-leg{display:flex;gap:14px;margin-top:10px;flex-shrink:0;padding-top:8px;border-top:1px solid var(--divider)}
+.tl{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.tld{width:12px;height:2px;border-radius:1px}
+
+.bars-col{display:flex;flex-direction:column;padding:14px 16px}
+.bars-title{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:3px}
+.bars-sub{font-size:10px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.bars-inner{display:flex;flex-direction:column;gap:9px;flex:1}
+.srow{display:flex;align-items:center;gap:8px}
+.slbl{font-size:11px;color:var(--body);width:105px;flex-shrink:0;text-align:right}
+.strack{flex:1;height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--divider)}
+.sseg{height:8px}
+.spct{font-size:11px;font-weight:700;width:30px;text-align:right;flex-shrink:0}
+.bars-legend{display:flex;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--divider)}
+.bl{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.bld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ── BOTTOM ROW ── */
+.bot{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bot .card{display:flex;flex-direction:column}
+
+/* What they are saying */
+.theme-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--divider)}
+.theme-row:last-child{border-bottom:none}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tname{font-size:12px;color:var(--body);flex:1}
+.tbar-bg{width:80px;height:5px;border-radius:3px;background:var(--divider);overflow:hidden;flex-shrink:0}
+.tbar{height:5px;border-radius:3px}
+.tn{font-size:12px;font-weight:600;color:var(--body);width:24px;text-align:right;flex-shrink:0}
+.tarr{font-size:11px;width:14px;text-align:right;flex-shrink:0}
+
+/* Who we have not heard */
+.gap-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--divider)}
+.gap-row:last-child{border-bottom:none}
+.gdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.gname{font-size:12px;color:var(--body);line-height:1.4;font-weight:600;margin-bottom:3px}
+.gsub{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* What people are saying */
+.q-row{padding:10px 0;border-bottom:1px solid var(--divider)}
+.q-row:last-child{border-bottom:none}
+.q-text{font-size:12px;color:var(--body);line-height:1.6;margin-bottom:6px;font-style:italic;font-weight:300;padding-left:10px;border-left:2px solid var(--divider)}
+.q-foot{display:flex;align-items:center;gap:7px}
+.q-src{font-size:10px;color:var(--muted)}
+.q-pill{font-size:9px;padding:2px 9px;border-radius:4px;font-weight:700;letter-spacing:0.02em}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  html,body{padding:0}
+  .page-shell{padding:0}
+  .page-card{border-radius:0;max-width:100%}
+  .hdr{padding:12px 16px;flex-wrap:wrap;gap:8px}
+  .hdr-left{flex-wrap:wrap;gap:8px}
+  .hmeta{font-size:10px}
+  .hdr-bar{padding:8px 16px;flex-wrap:wrap;gap:4px}
+  .hbar-note{font-size:9px}
+  .dash{padding:10px 12px 16px;gap:10px}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .kc-val{font-size:22px}
+  .filter-card{padding:10px 12px}
+  .filter-row{flex-wrap:wrap;gap:4px}
+  .filter-lbl{font-size:9px}
+  .fb{font-size:10px;padding:3px 9px}
+  .mid{grid-template-columns:1fr!important}
+  .sent-card{grid-template-columns:1fr!important}
+  .sent-divider{display:none}
+  .trend-chart{min-height:120px}
+  .bars-col{padding:12px}
+  .bot{grid-template-columns:1fr!important}
+  .slbl{width:85px;font-size:10px}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr}
+  .kc-val{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="page-shell">
+<div class="page-card">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="brand">
+      <div class="bmark">
+        <span style="height:5px"></span>
+        <span style="height:9px"></span>
+        <span style="height:15px"></span>
+        <span style="height:8px"></span>
+      </div>
+      <div>
+        <div class="bname">EASCA CONSULTING</div>
+        <div class="btag">ENGAGEMENT DATA GOVERNANCE</div>
+      </div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="htitle">Community Engagement Dashboard</div>
+  </div>
+  <div class="hmeta">N11/N25 Bypass &nbsp;·&nbsp; Q1–Q2 2025 &nbsp;·&nbsp; Anonymised example</div>
+</div>
+
+<div class="hdr-bar">
+  <div class="hdr-viewing">
+    <div class="hbar-dot"></div>
+    <span class="hbar-lbl">Viewing:</span>
+    <span class="hbar-val">All submissions</span>
+  </div>
+  <div class="hbar-note">Analysis completed: June 2025 · Submission data and field interview records</div>
+</div>
+
+<!-- DASH BODY -->
+<div class="dash">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kc k-teal">
+      <div class="kc-label">Submissions received</div>
+      <div class="kc-val" style="color:var(--teal)">342</div>
+      <div class="kc-sub">↑ 38% on last period</div>
+    </div>
+    <div class="kc k-navy">
+      <div class="kc-label">Unique voices heard</div>
+      <div class="kc-val">89</div>
+      <div class="kc-sub">Across 6 communities</div>
+    </div>
+    <div class="kc k-amber">
+      <div class="kc-label">Concerned or opposed</div>
+      <div class="kc-val" style="color:var(--amber)">61%</div>
+      <div class="kc-sub">Majority position</div>
+    </div>
+    <div class="kc k-red">
+      <div class="kc-label">Communities not yet heard</div>
+      <div class="kc-val" style="color:var(--red)">3</div>
+      <div class="kc-sub">Most affected by Route B</div>
+    </div>
+  </div>
+
+  <!-- MID: donut + sentiment -->
+  <div class="mid">
+
+    <div class="card">
+      <div class="clabel">Who has spoken</div>
+      <div class="donut-wrap">
+        <canvas id="donut" width="280" height="280" style="display: block; box-sizing: border-box; height: 140px; width: 140px;"></canvas>
+        <div class="donut-inner"><div class="dn">342</div><div class="dl">total</div></div>
+      </div>
+      <div class="leg">
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#4db89e"></div><div class="leg-name">Local residents</div></div><div class="leg-pct">41%</div></div>
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#263044"></div><div class="leg-name">Community groups</div></div><div class="leg-pct">20%</div></div>
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#3a9d85"></div><div class="leg-name">Local businesses</div></div><div class="leg-pct">16%</div></div>
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#4A6080"></div><div class="leg-name">NGOs &amp; advocacy</div></div><div class="leg-pct">11%</div></div>
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#a0aec0"></div><div class="leg-name">Elected reps</div></div><div class="leg-pct">8%</div></div>
+        <div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:#E8EBF0"></div><div class="leg-name">Statutory bodies</div></div><div class="leg-pct">4%</div></div>
+      </div>
+    </div>
+
+    <div class="sent-card">
+      <div class="trend-col">
+        <div class="trend-title">Sentiment trend</div>
+        <div class="trend-sub">How the balance of support and concern has shifted — Jan to Jun 2025</div>
+        <div class="trend-chart">
+          <canvas id="trend" style="position: absolute; top: 0px; left: 0px; width: 529px; height: 221px; display: block; box-sizing: border-box;" width="1058" height="443"></canvas>
+        </div>
+        <div class="trend-leg">
+          <span class="tl"><span class="tld" style="background:#3a9d85"></span>Supportive</span>
+          <span class="tl"><span class="tld" style="background:#a0aec0"></span>Neutral</span>
+          <span class="tl"><span class="tld" style="background:#C0392B"></span>Concerned</span>
+        </div>
+      </div>
+
+      <div class="sent-divider"></div>
+
+      <div class="bars-col">
+        <div class="bars-title">Sentiment by group</div>
+        <div class="bars-sub">% concerned (red) vs supportive (green)</div>
+        <div class="bars-inner">
+          <div class="srow"><div class="slbl">Local residents</div><div class="strack"><div class="sseg" style="width:18%;background:#3a9d85"></div><div class="sseg" style="width:21%;background:#E8EBF0"></div><div class="sseg" style="width:61%;background:#C0392B"></div></div><div class="spct" style="color:#C0392B">61%</div></div>
+          <div class="srow"><div class="slbl">Community groups</div><div class="strack"><div class="sseg" style="width:22%;background:#3a9d85"></div><div class="sseg" style="width:18%;background:#E8EBF0"></div><div class="sseg" style="width:60%;background:#C0392B"></div></div><div class="spct" style="color:#C0392B">60%</div></div>
+          <div class="srow"><div class="slbl">Local businesses</div><div class="strack"><div class="sseg" style="width:48%;background:#3a9d85"></div><div class="sseg" style="width:30%;background:#E8EBF0"></div><div class="sseg" style="width:22%;background:#C0392B"></div></div><div class="spct" style="color:#3a9d85">48%</div></div>
+          <div class="srow"><div class="slbl">Elected reps</div><div class="strack"><div class="sseg" style="width:35%;background:#3a9d85"></div><div class="sseg" style="width:40%;background:#E8EBF0"></div><div class="sseg" style="width:25%;background:#C0392B"></div></div><div class="spct" style="color:#3a9d85">35%</div></div>
+          <div class="srow"><div class="slbl">NGOs &amp; advocacy</div><div class="strack"><div class="sseg" style="width:5%;background:#3a9d85"></div><div class="sseg" style="width:20%;background:#E8EBF0"></div><div class="sseg" style="width:75%;background:#C0392B"></div></div><div class="spct" style="color:#C0392B">75%</div></div>
+          <div class="srow"><div class="slbl">Statutory bodies</div><div class="strack"><div class="sseg" style="width:60%;background:#3a9d85"></div><div class="sseg" style="width:30%;background:#E8EBF0"></div><div class="sseg" style="width:10%;background:#C0392B"></div></div><div class="spct" style="color:#3a9d85">60%</div></div>
+        </div>
+        <div class="bars-legend">
+          <span class="bl"><span class="bld" style="background:#3a9d85"></span>Supportive</span>
+          <span class="bl"><span class="bld" style="background:#E8EBF0;border:1px solid #d0d4dc"></span>Neutral</span>
+          <span class="bl"><span class="bld" style="background:#C0392B"></span>Concerned</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bot">
+
+    <div class="card">
+      <div class="clabel">What they are saying</div>
+      <div class="theme-row"><div class="tdot" style="background:#C0392B"></div><div class="tname">Noise &amp; construction</div><div class="tbar-bg"><div class="tbar" style="width:100%;background:#C0392B"></div></div><div class="tn">98</div><div class="tarr" style="color:#C0392B">↑</div></div>
+      <div class="theme-row"><div class="tdot" style="background:#B7791F"></div><div class="tname">Land acquisition</div><div class="tbar-bg"><div class="tbar" style="width:75%;background:#B7791F"></div></div><div class="tn">74</div><div class="tarr" style="color:#C0392B">↑</div></div>
+      <div class="theme-row"><div class="tdot" style="background:#a0aec0"></div><div class="tname">Traffic disruption</div><div class="tbar-bg"><div class="tbar" style="width:62%;background:#a0aec0"></div></div><div class="tn">61</div><div class="tarr" style="color:#a0aec0">→</div></div>
+      <div class="theme-row"><div class="tdot" style="background:#3a9d85"></div><div class="tname">Ecological impact</div><div class="tbar-bg"><div class="tbar" style="width:53%;background:#3a9d85"></div></div><div class="tn">52</div><div class="tarr" style="color:#C0392B">↑</div></div>
+      <div class="theme-row"><div class="tdot" style="background:#4db89e"></div><div class="tname">Support for bypass</div><div class="tbar-bg"><div class="tbar" style="width:49%;background:#4db89e"></div></div><div class="tn">48</div><div class="tarr" style="color:#a0aec0">→</div></div>
+      <div class="theme-row"><div class="tdot" style="background:#263044"></div><div class="tname">Community benefit</div><div class="tbar-bg"><div class="tbar" style="width:32%;background:#263044"></div></div><div class="tn">31</div><div class="tarr" style="color:#C0392B">↑</div></div>
+    </div>
+
+    <div class="card">
+      <div class="clabel">Who we have not heard</div>
+      <div class="gap-row">
+        <div class="gdot" style="background:#C0392B"></div>
+        <div><div class="gname">Farming community — Davidstown</div><div class="gsub">12 landholdings directly affected by acquisition proposals. Only 3 responses received. No face-to-face outreach event has been held.</div></div>
+      </div>
+      <div class="gap-row">
+        <div class="gdot" style="background:#C0392B"></div>
+        <div><div class="gname">Route B households — Oylegate</div><div class="gsub">Most directly impacted by preferred route. Engagement volume far below what proximity to the scheme would suggest.</div></div>
+      </div>
+      <div class="gap-row">
+        <div class="gdot" style="background:#B7791F"></div>
+        <div><div class="gname">Residents under 30</div><div class="gsub">Submission profile skews heavily over-50s. No digital channel engagement or outreach through youth organisations.</div></div>
+      </div>
+      <div class="gap-row">
+        <div class="gdot" style="background:#B7791F"></div>
+        <div><div class="gname">Non-English speaking residents</div><div class="gsub">~340 Polish and Ukrainian residents in the corridor zone. Zero interactions logged in the stakeholder register against this group.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="clabel">What people are saying</div>
+      <div class="q-row">
+        <div class="q-text" style="border-left-color:#C0392B">"Nobody asked us anything. We found out about Route B from a neighbour."</div>
+        <div class="q-foot"><span class="q-src">Oylegate resident</span><span class="q-pill" style="background:#FCECEA;color:#C0392B">Concerned</span></div>
+      </div>
+      <div class="q-row">
+        <div class="q-text" style="border-left-color:#3a9d85">"We have been waiting twenty years for this road. Build it."</div>
+        <div class="q-foot"><span class="q-src">Local business owner</span><span class="q-pill" style="background:#EBF8F5;color:#3a9d85">Supportive</span></div>
+      </div>
+      <div class="q-row">
+        <div class="q-text" style="border-left-color:#C0392B">"The ecological assessment fails to account for the protected habitat on Route B."</div>
+        <div class="q-foot"><span class="q-src">An Taisce</span><span class="q-pill" style="background:#FCECEA;color:#C0392B">Concerned</span></div>
+      </div>
+      <div class="q-row">
+        <div class="q-text" style="border-left-color:#B7791F">"We support the bypass in principle but need firm commitments on construction hours and community liaison."</div>
+        <div class="q-foot"><span class="q-src">Gorey resident</span><span class="q-pill" style="background:#FEF3E2;color:#B7791F">Neutral</span></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /dash -->
+
+</div><!-- /page-card -->
+</div><!-- /page-shell -->
+
+<script>
+new Chart(document.getElementById('donut'),{
+  type:'doughnut',
+  data:{
+    labels:['Local residents','Community groups','Local businesses','NGOs & advocacy','Elected reps','Statutory bodies'],
+    datasets:[{
+      data:[142,67,54,38,28,13],
+      backgroundColor:['#4db89e','#263044','#3a9d85','#4A6080','#a0aec0','#E8EBF0'],
+      borderWidth:3,
+      borderColor:'#fff',
+      hoverOffset:4
+    }]
+  },
+  options:{
+    responsive:false,
+    cutout:'70%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}`}}}
+  }
+});
+
+new Chart(document.getElementById('trend'),{
+  type:'line',
+  data:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    datasets:[
+      {
+        label:'Supportive',
+        data:[28,25,24,22,20,19],
+        borderColor:'#3a9d85',
+        backgroundColor:'rgba(58,157,133,0.08)',
+        fill:true,borderWidth:2,
+        pointRadius:3,pointBackgroundColor:'#fff',
+        pointBorderColor:'#3a9d85',pointBorderWidth:2,tension:0.45
+      },
+      {
+        label:'Neutral',
+        data:[32,30,28,25,22,20],
+        borderColor:'#a0aec0',
+        backgroundColor:'transparent',
+        fill:false,borderWidth:1.5,
+        pointRadius:0,tension:0.45
+      },
+      {
+        label:'Concerned',
+        data:[40,45,48,53,58,61],
+        borderColor:'#C0392B',
+        backgroundColor:'rgba(192,57,43,0.07)',
+        fill:true,borderWidth:2,
+        pointRadius:3,pointBackgroundColor:'#fff',
+        pointBorderColor:'#C0392B',pointBorderWidth:2,tension:0.45
+      }
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}%`}}
+    },
+    scales:{
+      x:{
+        grid:{display:false},
+        ticks:{font:{size:10,family:'Segoe UI'},color:'#8A95A8'},
+        border:{display:false}
+      },
+      y:{
+        display:false,min:0,max:80
+      }
+    }
+  }
+});
+</script>
+
+
+</body></html>

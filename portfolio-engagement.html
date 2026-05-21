@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<!-- saved from url=(0060)file:///C:/Users/luise/Downloads/portfolio-engagement_1.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Easca — Portfolio Engagement Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #1E2535;
+  --card: #FFFFFF;
+  --header-bg: #263044;
+  --header-text: #FFFFFF;
+  --body: #263044;
+  --muted: #8A95A8;
+  --faint: #F5F7FA;
+  --divider: #E8EBF0;
+  --accent: #4db89e;
+  --accent2: #3a9d85;
+  --red: #C0392B;
+  --red-bg: #FCECEA;
+  --amber: #B7791F;
+  --amber-bg: #FEF3E2;
+  --green: #4db89e;
+  --green-bg: #EBF8F5;
+  --inprog: #4A6080;
+  --inprog-bg: #EEF1F5;
+  --blue: #4A6080;
+  --blue-bg: #EEF1F5;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --shadow: 0 4px 24px rgba(0,0,0,0.28);
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100vh; background: var(--bg); font-family: var(--font); color: var(--body); }
+
+/* ── Outer wrapper ── */
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 40px;
+}
+
+/* ── Main card ── */
+.card {
+  width: 100%;
+  max-width: 1060px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ── Card header ── */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--header-bg);
+  border-bottom: none;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo-bars { display: flex; align-items: flex-end; gap: 2.5px; height: 18px; }
+.logo-bars span { background: var(--accent); border-radius: 2px; width: 4px; }
+.brand-name { font-size: 15px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.2px; }
+.brand-tag { font-size: 9px; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+
+/* Slicer buttons */
+.slicers { display: flex; align-items: center; gap: 4px; }
+.slicer-lbl { font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; margin-right: 6px; font-weight: 600; }
+.sl-btn {
+  font-family: var(--font); font-size: 11px; font-weight: 500;
+  padding: 4px 12px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: transparent; color: rgba(255,255,255,0.7); cursor: pointer;
+  transition: all 0.12s;
+}
+.sl-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sl-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sl-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.15); margin: 0 2px; }
+.header-right { font-size: 11px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+
+/* ── Card body ── */
+.card-body { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Overdue urgency bar in commits table */
+.overdue-bar-wrap { width: 80px; height: 4px; background: var(--divider); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.overdue-bar { height: 4px; background: var(--red); border-radius: 2px; }
+
+/* ── Warning ── */
+.warn {
+  background: var(--red-bg);
+  border: 1px solid #FBBFBF;
+  border-left: 3px solid var(--red);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: none;
+}
+.warn-title { font-size: 10px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 6px; }
+.wi { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #7B1818; line-height: 1.5; margin-bottom: 2px; }
+.wi:last-child { margin-bottom: 0; }
+.wdot { width: 4px; height: 4px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 6px; }
+
+/* ── KPI strip ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); border-radius: 8px; overflow: hidden; }
+.kpi {
+  background: var(--card);
+  padding: 14px 16px 13px;
+  position: relative;
+}
+.kpi::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.kpi.k1::after { background: var(--accent); }
+.kpi.k2::after { background: var(--accent2); }
+.kpi.k3::after { background: var(--red); }
+.kpi.k4::after { background: var(--amber); }
+.kpi-label { font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-val { font-size: 28px; font-weight: 300; color: var(--body); line-height: 1; letter-spacing: -0.5px; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-sub.alert { color: var(--red); font-weight: 600; }
+
+/* All KPI stripes teal — semantic meaning lives in the value, not the stripe */
+.kpi.k1::after { background: var(--accent); }
+.kpi.k2::after { background: var(--accent); }
+.kpi.k3::after { background: var(--accent); }
+.kpi.k4::after { background: var(--accent); }
+
+/* Date slicer group */
+.slicer-group { display: flex; align-items: center; gap: 4px; }
+.slicer-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 6px; }
+
+/* ── Middle row: RAG + Commit status + Trend ── */
+.mid-row { display: grid; grid-template-columns: 190px 320px 1fr; gap: 12px; }
+
+/* Mini trend chart in mid row */
+.trend-box {
+  background: var(--faint);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.trend-canvas-wrap { flex: 1; position: relative; min-height: 80px; }
+
+/* RAG donut */
+.rag-box {
+  background: var(--faint);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.box-title { font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.rag-inner { display: flex; align-items: center; gap: 14px; }
+.rag-legend { display: flex; flex-direction: column; gap: 8px; }
+.rl { display: flex; align-items: center; gap: 8px; }
+.rl-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.rl-count { font-size: 16px; font-weight: 700; color: var(--header-text); line-height: 1; }
+.rl-lbl { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+/* Commit breakdown */
+.commit-box {
+  background: var(--faint);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.cv-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.cv-row { display: flex; align-items: center; gap: 10px; }
+.cv-label { font-size: 11px; font-weight: 600; width: 76px; flex-shrink: 0; }
+.cv-track { flex: 1; height: 10px; background: var(--divider); border-radius: 3px; overflow: hidden; }
+.cv-fill { height: 10px; border-radius: 3px; transition: width 0.5s; }
+.cv-count { font-size: 12px; font-weight: 700; width: 18px; text-align: right; flex-shrink: 0; }
+.commit-foot { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--divider); font-size: 11px; color: var(--muted); }
+
+/* ── Section label ── */
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title { font-size: 11px; font-weight: 700; color: var(--body); letter-spacing: 0.06em; text-transform: uppercase; }
+.section-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ── Project health cards ── */
+.project-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+
+.pcard {
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.pcard:hover { box-shadow: 0 4px 20px rgba(38,48,68,0.12); border-color: #C0C8D8; }
+
+.pcard-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.pcard-name { font-size: 13px; font-weight: 700; color: var(--body); line-height: 1.2; }
+.pcard-type { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.rag-badge { font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 4px; flex-shrink: 0; margin-left: 8px; margin-top: 1px; letter-spacing: 0.04em; }
+.rag-badge.r { background: var(--red-bg); color: var(--red); }
+.rag-badge.a { background: var(--amber-bg); color: var(--amber); }
+.rag-badge.g { background: var(--green-bg); color: var(--accent); }
+
+/* Stats row inside card */
+.pcard-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--divider); border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+.ps { background: var(--faint); padding: 7px 9px; text-align: center; }
+.ps-val { font-size: 18px; font-weight: 600; line-height: 1; color: var(--body); }
+.ps-lbl { font-size: 9px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.pcard-bar-bg { height: 3px; background: var(--divider); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+.pcard-bar-fill { height: 3px; border-radius: 2px; }
+
+.pcard-reason {
+  font-size: 11px; color: var(--muted); line-height: 1.5;
+  padding-left: 8px; border-left: 2px solid var(--divider);
+}
+.pcard-reason.r { border-left-color: var(--red); color: #7B1818; }
+.pcard-reason.a { border-left-color: var(--amber); color: #78350F; }
+.pcard-reason.g { border-left-color: var(--accent); color: var(--accent2); }
+
+.view-link { font-size: 10px; font-weight: 600; color: var(--accent); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+/* ── Bottom analytics row ── */
+.analytics-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
+.abox { background: var(--faint); border: 1px solid var(--divider); border-radius: 8px; padding: 14px 16px; }
+
+/* Stacked bars */
+.sb-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--divider); cursor: pointer; }
+.sb-row:last-child { border-bottom: none; }
+.sb-row:hover .sb-lbl { color: var(--accent); }
+.sb-lbl { font-size: 11px; color: var(--body); width: 145px; flex-shrink: 0; transition: color 0.1s; }
+.sb-track { flex: 1; height: 12px; background: var(--divider); border-radius: 3px; overflow: hidden; display: flex; gap: 1px; }
+.sb-seg { height: 12px; }
+.sb-tot { font-size: 10px; font-weight: 700; color: var(--muted); width: 24px; text-align: right; flex-shrink: 0; }
+.sb-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--divider); }
+.sli { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+.sld { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* Right column inside analytics */
+.right-stack { display: flex; flex-direction: column; gap: 12px; }
+
+/* Commit rate */
+.crate-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--divider); }
+.crate-row:last-child { border-bottom: none; }
+.crate-name { font-size: 11px; color: var(--body); width: 140px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crate-bg { flex: 1; height: 6px; background: var(--divider); border-radius: 3px; overflow: hidden; }
+.crate-fill { height: 6px; border-radius: 3px; transition: width 0.4s; }
+.crate-pct { font-size: 11px; font-weight: 700; color: var(--muted); width: 30px; text-align: right; flex-shrink: 0; }
+
+/* Chart */
+.chart-canvas-wrap { position: relative; height: 150px; }
+
+/* ── Commitments ── */
+.commit-table { background: var(--faint); border: 1px solid var(--divider); border-radius: 8px; overflow: hidden; }
+.commit-table-head { display: flex; padding: 8px 14px; font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 1px solid var(--divider); background: var(--card); }
+.commit-row-item { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--divider); gap: 10px; }
+.commit-row-item:last-child { border-bottom: none; }
+.commit-text { font-size: 12px; font-weight: 500; color: var(--body); flex: 1; min-width: 0; }
+.commit-proj { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); width: 160px; flex-shrink: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.commit-due { font-size: 11px; color: var(--muted); width: 120px; flex-shrink: 0; }
+.commit-who { font-size: 11px; color: var(--muted); width: 70px; flex-shrink: 0; }
+.commit-status-col { width: 110px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.cs-pill { font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.02em; }
+.cs-done { background: var(--green-bg); color: var(--accent); }
+.cs-prog { background: var(--inprog-bg); color: var(--inprog); }
+.cs-over { background: var(--red-bg); color: var(--red); }
+/* Overdue urgency bar */
+.overdue-bar-wrap { width: 50px; height: 3px; background: var(--divider); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.overdue-bar { height: 3px; background: var(--red); border-radius: 2px; }
+
+/* ── Drill panels ── */
+.drill { display: none; background: var(--faint); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 18px; }
+.drill.open { display: block; }
+.drill-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.drill-title { font-size: 14px; font-weight: 700; color: var(--header-text); }
+.drill-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.close-btn { font-family: var(--font); font-size: 11px; color: var(--muted); cursor: pointer; padding: 4px 10px; border: 1px solid var(--divider); border-radius: 4px; background: var(--card); }
+.close-btn:hover { border-color: var(--accent); color: var(--accent); }
+.dm-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+.dmc { background: var(--card); border: 1px solid var(--divider); border-radius: 6px; padding: 10px 12px; }
+.dmc-l { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.dmc-v { font-size: 22px; font-weight: 300; color: var(--header-text); }
+.drill-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.drill-col-title { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--divider); }
+.irow { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--divider); }
+.irow:last-child { border-bottom: none; }
+.ibar-bg { flex: 1; height: 5px; background: var(--divider); border-radius: 2px; overflow: hidden; }
+.ibar { height: 5px; border-radius: 2px; }
+.tl-row { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--divider); align-items: flex-start; }
+.tl-row:last-child { border-bottom: none; }
+.tl-date { font-size: 10px; color: var(--muted); width: 58px; flex-shrink: 0; padding-top: 1px; }
+.tl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.tl-text { font-size: 11px; color: var(--body); }
+.tl-type { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.stk-hdr { display: flex; padding: 5px 0; font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--divider); }
+.stk-row { display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--divider); font-size: 11px; gap: 8px; }
+.stk-row:last-child { border-bottom: none; }
+.cat-pill { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.cdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  html,body{padding:0}
+  .shell{padding:0}
+  .card{border-radius:0;max-width:100%}
+  .card-header{padding:12px 16px;flex-wrap:wrap;gap:8px}
+  .slicers{flex-wrap:wrap;gap:4px}
+  .slicer-group{flex-wrap:wrap;gap:3px}
+  .slicer-lbl{font-size:9px}
+  .sl-btn{font-size:10px;padding:3px 9px}
+  .slicer-divider{display:none}
+  .header-right{font-size:10px}
+  .card-body{padding:12px 14px 20px;gap:12px}
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .kpi-val{font-size:22px}
+  .mid-row{grid-template-columns:1fr!important}
+  .project-grid{grid-template-columns:1fr!important}
+  .analytics-row{grid-template-columns:1fr!important}
+  .right-stack{gap:10px}
+  .sb-lbl{width:110px;font-size:10px}
+  .crate-name{width:110px;font-size:10px}
+  .commit-table-head{display:none}
+  .commit-row-item{flex-wrap:wrap;gap:6px;padding:10px 12px}
+  .commit-text{width:100%;font-size:12px}
+  .commit-proj{width:auto}
+  .commit-due{width:auto}
+  .commit-who{width:auto}
+  .commit-status-col{width:auto;justify-content:flex-start}
+  .dm-grid{grid-template-columns:repeat(2,1fr)}
+  .drill-cols{grid-template-columns:1fr!important}
+}
+@media(max-width:480px){
+  .kpi-strip{grid-template-columns:1fr}
+  .kpi-val{font-size:20px}
+  .dm-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="brand">
+      <div class="logo-bars">
+        <span style="height:5px"></span>
+        <span style="height:10px"></span>
+        <span style="height:16px"></span>
+        <span style="height:8px"></span>
+      </div>
+      <div>
+        <div class="brand-name">Portfolio Engagement Dashboard</div>
+        <div class="brand-tag">Easca Consulting &nbsp;·&nbsp; Engagement Data Governance</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0">
+      <div class="slicer-group">
+        <span class="slicer-lbl">Region</span>
+        <button class="sl-btn on" onclick="setF(&#39;all&#39;,this,&#39;region&#39;)">All</button>
+        <button class="sl-btn" onclick="setF(&#39;Ireland&#39;,this,&#39;region&#39;)">Ireland</button>
+        <button class="sl-btn" onclick="setF(&#39;UK&#39;,this,&#39;region&#39;)">UK</button>
+        <div class="sl-sep"></div>
+        <button class="sl-btn" onclick="setF(&#39;Active&#39;,this,&#39;region&#39;)">Active only</button>
+      </div>
+      <div class="slicer-divider"></div>
+      <div class="slicer-group">
+        <span class="slicer-lbl">Period</span>
+        <button class="sl-btn sl-date on" onclick="setD(&#39;Q1&#39;,this)">Q1</button>
+        <button class="sl-btn sl-date" onclick="setD(&#39;Q2&#39;,this)">Q2</button>
+        <button class="sl-btn sl-date" onclick="setD(&#39;Q3&#39;,this)">Q3</button>
+        <button class="sl-btn sl-date" onclick="setD(&#39;Q4&#39;,this)">Q4</button>
+        <div class="sl-sep"></div>
+        <button class="sl-btn sl-date" onclick="setD(&#39;H1&#39;,this)">H1</button>
+        <button class="sl-btn sl-date" onclick="setD(&#39;Full&#39;,this)">Full year</button>
+      </div>
+    </div>
+    <div class="header-right">2025 &nbsp;·&nbsp; Anonymised example</div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+
+    <!-- Warning -->
+    <div class="warn" id="warn" style="display: block;">
+      <div class="warn-title">⚠&nbsp; Early warning signals</div>
+      <div id="warn-items"><div class="wi"><div class="wdot"></div><div>N11/N25 Bypass SPV and Tyne Water Upgrade: rated Red — management attention required.</div></div><div class="wi"><div class="wdot"></div><div>4 commitments overdue — stakeholder trust at risk.</div></div></div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="kpi-strip" id="kpi-strip">
+    <div class="kpi k1"><div class="kpi-label">Total interactions</div><div class="kpi-val">180</div><div class="kpi-sub">4 projects</div></div>
+    <div class="kpi k2"><div class="kpi-label">Stakeholders engaged</div><div class="kpi-val">232</div><div class="kpi-sub">records logged</div></div>
+    <div class="kpi k3"><div class="kpi-label">Overdue commitments</div><div class="kpi-val">4</div><div class="kpi-sub alert">7 open in total</div></div>
+    <div class="kpi k4"><div class="kpi-label">Projects at risk</div><div class="kpi-val">3</div><div class="kpi-sub">2 red · 1 amber</div></div>
+  </div>
+
+    <!-- RAG + Commit row -->
+    <div class="mid-row" id="mid-row">
+    <div class="rag-box">
+      <div class="box-title">RAG Status</div>
+      <div class="rag-inner">
+        <canvas id="donut1" width="160" height="160" style="flex-shrink: 0; display: block; box-sizing: border-box; height: 80px; width: 80px;"></canvas>
+        <div class="rag-legend">
+          <div class="rl"><div class="rl-dot" style="background:#C0392B"></div><div><div class="rl-count">2</div><div class="rl-lbl">Red</div></div></div>
+          <div class="rl"><div class="rl-dot" style="background:#B7791F"></div><div><div class="rl-count">1</div><div class="rl-lbl">Amber</div></div></div>
+          <div class="rl"><div class="rl-dot" style="background:#4db89e"></div><div><div class="rl-count">1</div><div class="rl-lbl">Green</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="commit-box">
+      <div class="box-title">Commitment status</div>
+      <div class="cv-rows">
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--red)">Overdue</div>
+          <div class="cv-track"><div class="cv-fill" style="width:100%;background:var(--red)"></div></div>
+          <div class="cv-count" style="color:var(--red)">4</div>
+        </div>
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--inprog)">In progress</div>
+          <div class="cv-track"><div class="cv-fill" style="width:75%;background:var(--inprog)"></div></div>
+          <div class="cv-count" style="color:var(--inprog)">3</div>
+        </div>
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--green)">Complete</div>
+          <div class="cv-track"><div class="cv-fill" style="width:25%;background:var(--green)"></div></div>
+          <div class="cv-count" style="color:var(--green)">1</div>
+        </div>
+      </div>
+      <div class="commit-foot">
+        <span style="color:var(--red);font-weight:700">4 overdue</span> — action required &nbsp;·&nbsp; 8 total tracked
+      </div>
+    </div>
+    <div class="trend-box">
+      <div class="box-title">Monthly interaction volume</div>
+      <div class="trend-canvas-wrap">
+        <canvas id="mini-chart" width="888" height="300" style="display: block; box-sizing: border-box; height: 150px; width: 444px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+    <!-- Project health -->
+    <div>
+      <div class="section-head">
+        <span class="section-title">Project health</span>
+        <span class="section-sub">Click any card to drill in</span>
+      </div>
+      <div class="project-grid" id="project-grid"><div class="pcard" onclick="drillProj(&#39;p1&#39;)" style="border-top:2px solid var(--red)">
+      <div class="pcard-head">
+        <div>
+          <div class="pcard-name">N11/N25 Bypass SPV</div>
+          <div class="pcard-type">Road scheme · Ireland</div>
+        </div>
+        <span class="rag-badge r">Red</span>
+      </div>
+      <div class="pcard-stats">
+        <div class="ps"><div class="ps-val" style="color:#4db89e">142</div><div class="ps-lbl">Interactions</div></div>
+        <div class="ps"><div class="ps-val">89</div><div class="ps-lbl">Stakeholders</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--red)">2</div><div class="ps-lbl">Overdue</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--body)">33%</div><div class="ps-lbl">Commit rate</div></div>
+      </div>
+      <div class="pcard-bar-bg"><div class="pcard-bar-fill" style="width:33%;background:#4db89e"></div></div>
+      <div class="pcard-reason r">Noise complaints escalating. 2 commitments overdue — immediate action required.</div>
+      <div class="view-link">→ View detail</div>
+    </div><div class="pcard" onclick="drillProj(&#39;p2&#39;)" style="border-top:2px solid var(--amber)">
+      <div class="pcard-head">
+        <div>
+          <div class="pcard-name">Schools PPP Bundle 3</div>
+          <div class="pcard-type">PPP — Education · Ireland</div>
+        </div>
+        <span class="rag-badge a">Amber</span>
+      </div>
+      <div class="pcard-stats">
+        <div class="ps"><div class="ps-val" style="color:#263044">97</div><div class="ps-lbl">Interactions</div></div>
+        <div class="ps"><div class="ps-val">61</div><div class="ps-lbl">Stakeholders</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--red)">1</div><div class="ps-lbl">Overdue</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--body)">55%</div><div class="ps-lbl">Commit rate</div></div>
+      </div>
+      <div class="pcard-bar-bg"><div class="pcard-bar-fill" style="width:55%;background:#263044"></div></div>
+      <div class="pcard-reason a">Traffic management unresolved. Issue volume rising despite steady engagement.</div>
+      <div class="view-link">→ View detail</div>
+    </div><div class="pcard" onclick="drillProj(&#39;p3&#39;)" style="border-top:2px solid var(--red)">
+      <div class="pcard-head">
+        <div>
+          <div class="pcard-name">Tyne Water Upgrade</div>
+          <div class="pcard-type">Utilities — Water · UK</div>
+        </div>
+        <span class="rag-badge r">Red</span>
+      </div>
+      <div class="pcard-stats">
+        <div class="ps"><div class="ps-val" style="color:#3a9d85">74</div><div class="ps-lbl">Interactions</div></div>
+        <div class="ps"><div class="ps-val">44</div><div class="ps-lbl">Stakeholders</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--red)">3</div><div class="ps-lbl">Overdue</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--body)">33%</div><div class="ps-lbl">Commit rate</div></div>
+      </div>
+      <div class="pcard-bar-bg"><div class="pcard-bar-fill" style="width:33%;background:#3a9d85"></div></div>
+      <div class="pcard-reason r">3 overdue commitments including unresolved regulator query. Highest risk this period.</div>
+      <div class="view-link">→ View detail</div>
+    </div><div class="pcard" onclick="drillProj(&#39;p4&#39;)" style="border-top:2px solid var(--green)">
+      <div class="pcard-head">
+        <div>
+          <div class="pcard-name">Solway Wind Farm Access</div>
+          <div class="pcard-type">Energy — Renewables · UK</div>
+        </div>
+        <span class="rag-badge g">Green</span>
+      </div>
+      <div class="pcard-stats">
+        <div class="ps"><div class="ps-val" style="color:#a0aec0">53</div><div class="ps-lbl">Interactions</div></div>
+        <div class="ps"><div class="ps-val">38</div><div class="ps-lbl">Stakeholders</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--red)">1</div><div class="ps-lbl">Overdue</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--body)">60%</div><div class="ps-lbl">Commit rate</div></div>
+      </div>
+      <div class="pcard-bar-bg"><div class="pcard-bar-fill" style="width:60%;background:#a0aec0"></div></div>
+      <div class="pcard-reason g">Commitments on track. Community benefit fund consultation progressing well.</div>
+      <div class="view-link">→ View detail</div>
+    </div></div>
+    </div>
+
+    <!-- Drill panels -->
+    <div class="drill" id="proj-drill"></div>
+    <div class="drill" id="issue-drill"></div>
+
+    <!-- Analytics row -->
+    <div>
+      <div class="section-head">
+        <span class="section-title">Portfolio analytics</span>
+        <span class="section-sub">Click any issue to explore</span>
+      </div>
+      <div class="analytics-row">
+        <div class="abox">
+          <div class="box-title">Issues by stakeholder category</div>
+          <div id="stacked-bar"><div class="sb-row" onclick="drillIssue(&#39;Noise &amp; vibration&#39;)">
+      <div class="sb-lbl">Noise &amp; vibration</div><div class="sb-track"><div class="sb-seg" style="width:68%;background:#4db89e" title="Community: 26"></div><div class="sb-seg" style="width:21%;background:#263044" title="Statutory: 8"></div><div class="sb-seg" style="width:11%;background:#3a9d85" title="Advocacy: 4"></div></div><div class="sb-tot">38</div>
+    </div><div class="sb-row" onclick="drillIssue(&#39;Construction access&#39;)">
+      <div class="sb-lbl">Construction access</div><div class="sb-track"><div class="sb-seg" style="width:18%;background:#4db89e" title="Community: 7"></div><div class="sb-seg" style="width:37%;background:#263044" title="Statutory: 14"></div><div class="sb-seg" style="width:26%;background:#a0aec0" title="Industry: 10"></div></div><div class="sb-tot">31</div>
+    </div><div class="sb-row" onclick="drillIssue(&#39;Traffic disruption&#39;)">
+      <div class="sb-lbl">Traffic disruption</div><div class="sb-track"><div class="sb-seg" style="width:37%;background:#4db89e" title="Community: 14"></div><div class="sb-seg" style="width:24%;background:#263044" title="Statutory: 9"></div><div class="sb-seg" style="width:16%;background:#a0aec0" title="Industry: 6"></div></div><div class="sb-tot">29</div>
+    </div><div class="sb-row" onclick="drillIssue(&#39;Noise during school hours&#39;)">
+      <div class="sb-lbl">Noise during school hours</div><div class="sb-track"><div class="sb-seg" style="width:47%;background:#4db89e" title="Community: 18"></div><div class="sb-seg" style="width:24%;background:#a0aec0" title="Industry: 9"></div></div><div class="sb-tot">27</div>
+    </div><div class="sb-row" onclick="drillIssue(&#39;Land acquisition&#39;)">
+      <div class="sb-lbl">Land acquisition</div><div class="sb-track"><div class="sb-seg" style="width:26%;background:#a0aec0" title="Industry: 10"></div><div class="sb-seg" style="width:37%;background:#8A95A8" title="Landowner: 14"></div></div><div class="sb-tot">24</div>
+    </div></div>
+          <div class="sb-legend" id="sb-legend"><span class="sli"><span class="sld" style="background:#4db89e"></span>Community</span><span class="sli"><span class="sld" style="background:#263044"></span>Statutory</span><span class="sli"><span class="sld" style="background:#3a9d85"></span>Advocacy</span><span class="sli"><span class="sld" style="background:#a0aec0"></span>Industry</span><span class="sli"><span class="sld" style="background:#8A95A8"></span>Landowner</span></div>
+        </div>
+        <div class="right-stack">
+          <div class="abox">
+            <div class="box-title">Commitment completion rate</div>
+            <div id="crate-list"><div class="crate-row">
+      <div class="crate-name"><span class="cdot" style="background:#4db89e"></span>N11/N25 Bypass SPV</div>
+      <div class="crate-bg"><div class="crate-fill" style="width:33%;background:#4db89e"></div></div>
+      <div class="crate-pct">33%</div>
+    </div><div class="crate-row">
+      <div class="crate-name"><span class="cdot" style="background:#263044"></span>Schools PPP Bundle 3</div>
+      <div class="crate-bg"><div class="crate-fill" style="width:55%;background:#263044"></div></div>
+      <div class="crate-pct">55%</div>
+    </div><div class="crate-row">
+      <div class="crate-name"><span class="cdot" style="background:#3a9d85"></span>Tyne Water Upgrade</div>
+      <div class="crate-bg"><div class="crate-fill" style="width:33%;background:#3a9d85"></div></div>
+      <div class="crate-pct">33%</div>
+    </div><div class="crate-row">
+      <div class="crate-name"><span class="cdot" style="background:#a0aec0"></span>Solway Wind Farm Access</div>
+      <div class="crate-bg"><div class="crate-fill" style="width:60%;background:#a0aec0"></div></div>
+      <div class="crate-pct">60%</div>
+    </div></div>
+          </div>
+          <div class="abox">
+            <div class="box-title">Monthly interaction volume</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chart1" width="732" height="300" style="display: block; box-sizing: border-box; height: 150px; width: 366px;"></canvas>
+            </div>
+            <div id="line-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"><span class="sli">
+      <svg width="18" height="10" style="margin-right:4px;vertical-align:middle"><line x1="0" y1="5" x2="18" y2="5" stroke="#4db89e" stroke-width="2"></line></svg>
+      <span style="font-size:10px;color:var(--muted)">N11/N25 Bypass SPV</span>
+    </span><span class="sli">
+      <svg width="18" height="10" style="margin-right:4px;vertical-align:middle"><line x1="0" y1="5" x2="18" y2="5" stroke="#263044" stroke-width="2" stroke-dasharray="5 3"></line></svg>
+      <span style="font-size:10px;color:var(--muted)">Schools PPP Bundle</span>
+    </span><span class="sli">
+      <svg width="18" height="10" style="margin-right:4px;vertical-align:middle"><line x1="0" y1="5" x2="18" y2="5" stroke="#3a9d85" stroke-width="2" stroke-dasharray="2 2"></line></svg>
+      <span style="font-size:10px;color:var(--muted)">Tyne Water Upgrade</span>
+    </span><span class="sli">
+      <svg width="18" height="10" style="margin-right:4px;vertical-align:middle"><line x1="0" y1="5" x2="18" y2="5" stroke="#a0aec0" stroke-width="2" stroke-dasharray="8 3 2 3"></line></svg>
+      <span style="font-size:10px;color:var(--muted)">Solway Wind Farm</span>
+    </span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commitments -->
+    <div>
+      <div class="section-head">
+        <span class="section-title">Open commitments</span>
+      </div>
+      <div class="commit-table">
+        <div class="commit-table-head">
+          <div style="flex:1">Commitment</div>
+          <div style="width:160px">Project</div>
+          <div style="width:120px">Due date</div>
+          <div style="width:70px">Owner</div>
+          <div style="width:110px;text-align:right">Status</div>
+        </div>
+        <div id="commit-list"><div class="commit-row-item">
+      <div class="commit-text">Provide noise impact report to residents</div>
+      <div class="commit-proj"><span class="cdot" style="background:#4db89e"></span>N11/N25 Bypass SPV</div>
+      <div class="commit-due"><span style="color:var(--red);font-weight:700">17d overdue</span></div>
+      <div class="commit-who">J. Murphy</div>
+      <div class="commit-status-col">
+        <div class="overdue-bar-wrap"><div class="overdue-bar" style="width:100%"></div></div>
+        <span class="cs-pill cs-over">Overdue</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Follow up with landowner re access agreement</div>
+      <div class="commit-proj"><span class="cdot" style="background:#4db89e"></span>N11/N25 Bypass SPV</div>
+      <div class="commit-due"><span style="color:var(--red);font-weight:700">10d overdue</span></div>
+      <div class="commit-who">J. Murphy</div>
+      <div class="commit-status-col">
+        <div class="overdue-bar-wrap"><div class="overdue-bar" style="width:59%"></div></div>
+        <span class="cs-pill cs-over">Overdue</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Respond to water quality query — Cllr Davies</div>
+      <div class="commit-proj"><span class="cdot" style="background:#3a9d85"></span>Tyne Water Upgrade</div>
+      <div class="commit-due"><span style="color:var(--red);font-weight:700">4d overdue</span></div>
+      <div class="commit-who">R. Patel</div>
+      <div class="commit-status-col">
+        <div class="overdue-bar-wrap"><div class="overdue-bar" style="width:24%"></div></div>
+        <span class="cs-pill cs-over">Overdue</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Submit compliance report to regulator</div>
+      <div class="commit-proj"><span class="cdot" style="background:#3a9d85"></span>Tyne Water Upgrade</div>
+      <div class="commit-due"><span style="color:var(--red);font-weight:700">2d overdue</span></div>
+      <div class="commit-who">R. Patel</div>
+      <div class="commit-status-col">
+        <div class="overdue-bar-wrap"><div class="overdue-bar" style="width:12%"></div></div>
+        <span class="cs-pill cs-over">Overdue</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Issue traffic management update</div>
+      <div class="commit-proj"><span class="cdot" style="background:#263044"></span>Schools PPP Bundle 3</div>
+      <div class="commit-due">Due 10 Jul 2025</div>
+      <div class="commit-who">S. Clarke</div>
+      <div class="commit-status-col">
+        
+        <span class="cs-pill cs-prog">In prog</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Schedule next stakeholder forum — Site A</div>
+      <div class="commit-proj"><span class="cdot" style="background:#263044"></span>Schools PPP Bundle 3</div>
+      <div class="commit-due">Due 25 Jul 2025</div>
+      <div class="commit-who">S. Clarke</div>
+      <div class="commit-status-col">
+        
+        <span class="cs-pill cs-prog">In prog</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Publish community benefit fund criteria</div>
+      <div class="commit-proj"><span class="cdot" style="background:#a0aec0"></span>Solway Wind Farm Access</div>
+      <div class="commit-due">Due 18 Jul 2025</div>
+      <div class="commit-who">T. Reid</div>
+      <div class="commit-status-col">
+        
+        <span class="cs-pill cs-prog">In prog</span>
+      </div>
+    </div><div class="commit-row-item">
+      <div class="commit-text">Distribute ecology summary to local groups</div>
+      <div class="commit-proj"><span class="cdot" style="background:#a0aec0"></span>Solway Wind Farm Access</div>
+      <div class="commit-due"><span style="color:var(--accent)">Done 1 Jun 2025</span></div>
+      <div class="commit-who">T. Reid</div>
+      <div class="commit-status-col">
+        
+        <span class="cs-pill cs-done">Done</span>
+      </div>
+    </div></div>
+      </div>
+    </div>
+
+  </div><!-- /card-body -->
+</div><!-- /card -->
+</div><!-- /shell -->
+
+<script>
+const P = [
+  {
+    id:'p1', name:'N11/N25 Bypass SPV', type:'Road scheme · Ireland',
+    region:'Ireland', status:'Active', color:'#4db89e',
+    rag:'r', ragReason:'Noise complaints escalating. 2 commitments overdue — immediate action required.',
+    interactions:142, stakeholders:89,
+    issues:['Noise & vibration','Traffic disruption','Land acquisition','Ecological impact','Community liaison'],
+    ic:[38,29,24,18,12], openCommits:8, doneCommits:4, overdue:2,
+    monthly:[8,14,31,22,38,29],
+    issueCats:{'Noise & vibration':{'Community':26,'Statutory':8,'Advocacy':4},'Traffic disruption':{'Community':14,'Statutory':9,'Industry':6},'Land acquisition':{'Landowner':14,'Industry':10},'Ecological impact':{'Advocacy':12,'Statutory':6},'Community liaison':{'Community':12}},
+    issueDetail:{'Noise & vibration':[{name:'Residents Assoc — Enniscorthy',cat:'Community'},{name:'Cllr. M. Walsh',cat:'Statutory'},{name:'Environmental NGO',cat:'Advocacy'}],'Traffic disruption':[{name:'Wexford County Council',cat:'Statutory'},{name:'Local business owner',cat:'Industry'}],'Land acquisition':[{name:'Three private landowners',cat:'Landowner'},{name:'IFA rep',cat:'Industry'}],'Ecological impact':[{name:'An Taisce',cat:'Advocacy'},{name:'Wexford Wildlife Trust',cat:'Advocacy'}],'Community liaison':[{name:'Gorey Community Council',cat:'Community'}]},
+    timeline:[{date:'Jun 2025',text:'Public information evening — Gorey',type:'Community event'},{date:'May 2025',text:'Written response to landowner objection',type:'Correspondence'},{date:'May 2025',text:'Meeting with Wexford County Council',type:'Meeting'},{date:'Apr 2025',text:'Ecological survey consultation',type:'Technical'},{date:'Mar 2025',text:'Stakeholder mapping review',type:'Internal'}]
+  },
+  {
+    id:'p2', name:'Schools PPP Bundle 3', type:'PPP — Education · Ireland',
+    region:'Ireland', status:'Active', color:'#263044',
+    rag:'a', ragReason:'Traffic management unresolved. Issue volume rising despite steady engagement.',
+    interactions:97, stakeholders:61,
+    issues:['Construction access','Noise during school hours','Traffic management','Community disruption','Visual amenity'],
+    ic:[31,27,19,14,9], openCommits:5, doneCommits:6, overdue:1,
+    monthly:[22,28,19,14,8,6],
+    issueCats:{'Construction access':{'Statutory':14,'Industry':10,'Community':7},'Noise during school hours':{'Community':18,'Industry':9},'Traffic management':{'Statutory':19},'Community disruption':{'Community':14},'Visual amenity':{'Statutory':9}},
+    issueDetail:{'Construction access':[{name:'Dept. of Education',cat:'Statutory'},{name:'School principal — Site A',cat:'Industry'}],'Noise during school hours':[{name:'Parents association',cat:'Community'},{name:'Local residents',cat:'Community'}],'Traffic management':[{name:'Dublin City Council',cat:'Statutory'},{name:'An Garda Síochána',cat:'Statutory'}],'Community disruption':[{name:'Local residents group',cat:'Community'}],'Visual amenity':[{name:'Planning authority',cat:'Statutory'}]},
+    timeline:[{date:'Jun 2025',text:'Progress meeting — Dept. of Education',type:'Meeting'},{date:'May 2025',text:'Parent consultation session — Site A',type:'Community event'},{date:'Apr 2025',text:'Traffic management plan review',type:'Technical'},{date:'Mar 2025',text:'Correspondence with residents group',type:'Correspondence'},{date:'Feb 2025',text:'Kick-off stakeholder mapping',type:'Internal'}]
+  },
+  {
+    id:'p3', name:'Tyne Water Upgrade', type:'Utilities — Water · UK',
+    region:'UK', status:'Active', color:'#3a9d85',
+    rag:'r', ragReason:'3 overdue commitments including unresolved regulator query. Highest risk this period.',
+    interactions:74, stakeholders:44,
+    issues:['Service disruption','Water quality concerns','Contractor access','Environmental compliance','Public communication'],
+    ic:[24,19,16,12,8], openCommits:6, doneCommits:3, overdue:3,
+    monthly:[4,6,26,8,24,6],
+    issueCats:{'Service disruption':{'Community':14,'Statutory':10},'Water quality concerns':{'Community':10,'Statutory':9},'Contractor access':{'Statutory':16},'Environmental compliance':{'Advocacy':8,'Statutory':4},'Public communication':{'Statutory':8}},
+    issueDetail:{'Service disruption':[{name:'Northumbrian households',cat:'Community'},{name:'Cllr. J. Davies',cat:'Statutory'}],'Water quality concerns':[{name:'Local residents',cat:'Community'},{name:'Environmental Health Officer',cat:'Statutory'}],'Contractor access':[{name:'Newcastle City Council',cat:'Statutory'}],'Environmental compliance':[{name:'Environment Agency',cat:'Statutory'},{name:'Local wildlife trust',cat:'Advocacy'}],'Public communication':[{name:'Ward councillors',cat:'Statutory'}]},
+    timeline:[{date:'Jun 2025',text:'Regulator compliance meeting',type:'Meeting'},{date:'May 2025',text:'Service disruption notice — 3 postcodes',type:'Correspondence'},{date:'Apr 2025',text:'Site visit with Environment Agency',type:'Technical'},{date:'Mar 2025',text:'Community drop-in session',type:'Community event'},{date:'Feb 2025',text:'Stakeholder register established',type:'Internal'}]
+  },
+  {
+    id:'p4', name:'Solway Wind Farm Access', type:'Energy — Renewables · UK',
+    region:'UK', status:'Monitoring', color:'#a0aec0',
+    rag:'g', ragReason:'Commitments on track. Community benefit fund consultation progressing well.',
+    interactions:53, stakeholders:38,
+    issues:['Visual impact','Noise','Wildlife & ecology','Access road','Community benefit fund'],
+    ic:[18,14,11,8,6], openCommits:4, doneCommits:6, overdue:1,
+    monthly:[7,8,7,9,8,14],
+    issueCats:{'Visual impact':{'Statutory':10,'Community':8},'Noise':{'Community':14},'Wildlife & ecology':{'Advocacy':8,'Statutory':3},'Access road':{'Landowner':8},'Community benefit fund':{'Community':8,'Statutory':4}},
+    issueDetail:{'Visual impact':[{name:'D&G Council',cat:'Statutory'},{name:'Local heritage group',cat:'Community'}],'Noise':[{name:'Residents within 1km',cat:'Community'}],'Wildlife & ecology':[{name:'RSPB Scotland',cat:'Advocacy'},{name:'NatureScot',cat:'Statutory'}],'Access road':[{name:'Private landowner',cat:'Landowner'}],'Community benefit fund':[{name:'Solway Community Trust',cat:'Community'},{name:'Local councillors',cat:'Statutory'}]},
+    timeline:[{date:'Jun 2025',text:'Community benefit fund consultation',type:'Community event'},{date:'May 2025',text:'Ecology report — public summary issued',type:'Correspondence'},{date:'Apr 2025',text:'Planning authority pre-app meeting',type:'Meeting'},{date:'Mar 2025',text:'Visual impact assessment walkthrough',type:'Technical'},{date:'Feb 2025',text:'Initial stakeholder mapping',type:'Internal'}]
+  }
+];
+
+const COMMITS = [
+  {text:'Provide noise impact report to residents',proj:'N11/N25 Bypass SPV',status:'over',due:'15 May 2025',assignee:'J. Murphy',daysOver:17},
+  {text:'Follow up with landowner re access agreement',proj:'N11/N25 Bypass SPV',status:'over',due:'22 May 2025',assignee:'J. Murphy',daysOver:10},
+  {text:'Respond to water quality query — Cllr Davies',proj:'Tyne Water Upgrade',status:'over',due:'28 May 2025',assignee:'R. Patel',daysOver:4},
+  {text:'Submit compliance report to regulator',proj:'Tyne Water Upgrade',status:'over',due:'2 Jun 2025',assignee:'R. Patel',daysOver:2},
+  {text:'Issue traffic management update',proj:'Schools PPP Bundle 3',status:'prog',due:'10 Jul 2025',assignee:'S. Clarke',daysOver:0},
+  {text:'Schedule next stakeholder forum — Site A',proj:'Schools PPP Bundle 3',status:'prog',due:'25 Jul 2025',assignee:'S. Clarke',daysOver:0},
+  {text:'Publish community benefit fund criteria',proj:'Solway Wind Farm Access',status:'prog',due:'18 Jul 2025',assignee:'T. Reid',daysOver:0},
+  {text:'Distribute ecology summary to local groups',proj:'Solway Wind Farm Access',status:'done',due:'1 Jun 2025',assignee:'T. Reid',daysOver:0}
+];
+
+const CAT_COLORS = {
+  'Community':'#4db89e','Statutory':'#263044','Advocacy':'#3a9d85','Industry':'#a0aec0','Landowner':'#8A95A8'
+};
+const MONTHS_ALL = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PERIOD_MAP = {
+  'Q1':{months:['Jan','Feb','Mar'],label:'Q1 2025'},
+  'Q2':{months:['Apr','May','Jun'],label:'Q2 2025'},
+  'Q3':{months:['Jul','Aug','Sep'],label:'Q3 2025'},
+  'Q4':{months:['Oct','Nov','Dec'],label:'Q4 2025'},
+  'H1':{months:['Jan','Feb','Mar','Apr','May','Jun'],label:'H1 2025'},
+  'Full':{months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],label:'Full year 2025'}
+};
+// Monthly data is Jan-Jun (indices 0-5); for periods beyond, repeat last value
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun'];
+
+let activeF = 'all', activePeriod = 'Q1', chartInst = null, donutInst = null, miniChartInst = null;
+
+function getMonthsForPeriod(period) {
+  return PERIOD_MAP[period]?.months || MONTHS;
+}
+
+function getMonthData(p, months) {
+  return months.map(m => {
+    const i = MONTHS_ALL.indexOf(m);
+    return p.monthly[Math.min(i, p.monthly.length-1)] || 0;
+  });
+}
+
+function fps() {
+  return P.filter(p => activeF==='all' ? true : activeF==='Active' ? p.status==='Active' : p.region===activeF);
+}
+
+function setF(f, btn, group) {
+  activeF = f;
+  document.querySelectorAll('.sl-btn:not(.sl-date)').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  hideDrills();
+  render();
+}
+
+function setD(period, btn) {
+  activePeriod = period;
+  document.querySelectorAll('.sl-date').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  hideDrills();
+  render();
+}
+
+function render() {
+  const fp = fps();
+  const names = new Set(fp.map(p=>p.name));
+  const fc = COMMITS.filter(c=>names.has(c.proj));
+  const periodMonths = getMonthsForPeriod(activePeriod);
+  const tot = fp.reduce((a,p)=>a+getMonthData(p,periodMonths).reduce((s,v)=>s+v,0),0);
+  const stk = fp.reduce((a,p)=>a+p.stakeholders,0);
+  const open = fc.filter(c=>c.status!=='done').length;
+  const over = fc.filter(c=>c.status==='over').length;  // single source of truth
+  const red = fp.filter(p=>p.rag==='r').length;
+  const amber = fp.filter(p=>p.rag==='a').length;
+  const green = fp.filter(p=>p.rag==='g').length;
+
+  renderWarning(fp, over);
+  renderKPI(fp, tot, stk, open, over, red, amber);
+  renderMid(fp, red, amber, green, periodMonths);
+  renderProjects(fp);
+  renderStackedBar(fp);
+  renderCrateList(fp);
+  renderCommits(fp);
+  renderChart(fp, periodMonths);
+}
+
+function renderWarning(fp, over) {
+  const w = [];
+  const reds = fp.filter(p=>p.rag==='r');
+  if (reds.length) w.push(reds.map(p=>p.name).join(' and ')+': rated Red — management attention required.');
+  if (over>0) w.push(`${over} commitment${over>1?'s':''} overdue — stakeholder trust at risk.`);
+  const im={};
+  fp.forEach(p=>p.issues.forEach(i=>{im[i]=(im[i]||0)+1;}));
+  const cross=Object.entries(im).filter(([,c])=>c>=2).map(([i])=>i);
+  if (cross.length) w.push(cross.slice(0,2).join(' and ')+' raised across multiple projects — monitor for coordinated opposition.');
+  const el = document.getElementById('warn');
+  document.getElementById('warn-items').innerHTML = w.map(x=>`<div class="wi"><div class="wdot"></div><div>${x}</div></div>`).join('');
+  el.style.display = w.length?'block':'none';
+}
+
+function renderKPI(fp, tot, stk, open, over, red, amber) {
+  document.getElementById('kpi-strip').innerHTML = `
+    <div class="kpi k1"><div class="kpi-label">Total interactions</div><div class="kpi-val">${tot}</div><div class="kpi-sub">${fp.length} project${fp.length!==1?'s':''}</div></div>
+    <div class="kpi k2"><div class="kpi-label">Stakeholders engaged</div><div class="kpi-val">${stk}</div><div class="kpi-sub">records logged</div></div>
+    <div class="kpi k3"><div class="kpi-label">Overdue commitments</div><div class="kpi-val">${over}</div><div class="kpi-sub ${over>0?'alert':''}">${open} open in total</div></div>
+    <div class="kpi k4"><div class="kpi-label">Projects at risk</div><div class="kpi-val">${red+amber}</div><div class="kpi-sub">${red} red · ${amber} amber</div></div>
+  `;
+}
+
+function renderMid(fp, red, amber, green, periodMonths) {
+  const names = new Set(fp.map(p=>p.name));
+  const fc = COMMITS.filter(c=>names.has(c.proj));
+  const nOver = fc.filter(c=>c.status==='over').length;
+  const nProg = fc.filter(c=>c.status==='prog').length;
+  const nDone = fc.filter(c=>c.status==='done').length;
+  const mx = Math.max(nOver, nProg, nDone, 1);
+
+  document.getElementById('mid-row').innerHTML = `
+    <div class="rag-box">
+      <div class="box-title">RAG Status</div>
+      <div class="rag-inner">
+        <canvas id="donut1" width="80" height="80" style="flex-shrink:0"></canvas>
+        <div class="rag-legend">
+          <div class="rl"><div class="rl-dot" style="background:#C0392B"></div><div><div class="rl-count">${red} <span style='font-size:11px;font-weight:400;color:var(--muted)'>(${Math.round(red/(red+amber+green||1)*100)}%)</span></div><div class="rl-lbl">Red</div></div></div>
+          <div class="rl"><div class="rl-dot" style="background:#B7791F"></div><div><div class="rl-count">${amber} <span style='font-size:11px;font-weight:400;color:var(--muted)'>(${Math.round(amber/(red+amber+green||1)*100)}%)</span></div><div class="rl-lbl">Amber</div></div></div>
+          <div class="rl"><div class="rl-dot" style="background:#4db89e"></div><div><div class="rl-count">${green} <span style='font-size:11px;font-weight:400;color:var(--muted)'>(${Math.round(green/(red+amber+green||1)*100)}%)</span></div><div class="rl-lbl">Green</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="commit-box">
+      <div class="box-title">Commitment status</div>
+      <div class="cv-rows">
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--red)">Overdue</div>
+          <div class="cv-track"><div class="cv-fill" style="width:${Math.round(nOver/mx*100)}%;background:var(--red)"></div></div>
+          <div class="cv-count" style="color:var(--red)">${nOver}</div>
+        </div>
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--inprog)">In progress</div>
+          <div class="cv-track"><div class="cv-fill" style="width:${Math.round(nProg/mx*100)}%;background:var(--inprog)"></div></div>
+          <div class="cv-count" style="color:var(--inprog)">${nProg}</div>
+        </div>
+        <div class="cv-row">
+          <div class="cv-label" style="color:var(--green)">Complete</div>
+          <div class="cv-track"><div class="cv-fill" style="width:${Math.round(nDone/mx*100)}%;background:var(--green)"></div></div>
+          <div class="cv-count" style="color:var(--green)">${nDone}</div>
+        </div>
+      </div>
+      <div class="commit-foot">
+        ${nOver>0?`<span style="color:var(--red);font-weight:700">${nOver} overdue</span> — action required &nbsp;·&nbsp; `:''}${nOver+nProg+nDone} total tracked
+      </div>
+    </div>
+    <div class="trend-box">
+      <div class="box-title">Monthly interaction volume</div>
+      <div class="trend-canvas-wrap">
+        <canvas id="mini-chart"></canvas>
+      </div>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    const ctx = document.getElementById('donut1');
+    if (!ctx) return;
+    if (donutInst) donutInst.destroy();
+    const ragTotal = (red||0) + (amber||0) + (green||0) || 1;
+    donutInst = new Chart(ctx,{
+      type:'doughnut',
+      data:{datasets:[{data:[red||0.001,amber||0.001,green||0.001],backgroundColor:['#C0392B','#B7791F','#4db89e'],borderWidth:0,hoverOffset:4}]},
+      options:{responsive:false,cutout:'66%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const l=['Red','Amber','Green'],v=[red,amber,green];const pct=Math.round(v[ctx.dataIndex]/ragTotal*100);return ` ${l[ctx.dataIndex]}: ${v[ctx.dataIndex]} (${pct}%)`;}}}}
+    }});
+
+    // Mini trend chart
+    const mctx = document.getElementById('mini-chart');
+    if (!mctx) return;
+    if (miniChartInst) miniChartInst.destroy();
+    const totals = periodMonths.map(m=>fp.reduce((s,p)=>s+getMonthData(p,[m])[0],0));
+    miniChartInst = new Chart(mctx, {
+      type:'line',
+      data:{
+        labels:periodMonths,
+        datasets:[{
+          data:totals,
+          borderColor:'#4db89e',
+          backgroundColor:'rgba(77,184,158,0.10)',
+          borderWidth:2,
+          pointBackgroundColor:'#fff',
+          pointBorderColor:'#4db89e',
+          pointBorderWidth:2,
+          pointRadius:3,
+          pointHoverRadius:5,
+          tension:0.4,
+          fill:true
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' interactions'}}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:9,family:'Segoe UI'},color:'#8A95A8'},border:{display:false}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9,family:'Segoe UI'},color:'#8A95A8'},beginAtZero:true,border:{display:false}}
+        }
+      }
+    });
+  },30);
+}
+
+function renderProjects(fp) {
+  const ragLabel = {r:'Red',a:'Amber',g:'Green'};
+  const ragColor = {r:'var(--red)',a:'var(--amber)',g:'var(--green)'};
+  document.getElementById('project-grid').innerHTML = fp.map(p=>{
+    const tot = p.openCommits + p.doneCommits;
+    const pct = tot>0 ? Math.round(p.doneCommits/tot*100) : 0;
+    return `<div class="pcard" onclick="drillProj('${p.id}')" style="border-top:2px solid ${ragColor[p.rag]}">
+      <div class="pcard-head">
+        <div>
+          <div class="pcard-name">${p.name}</div>
+          <div class="pcard-type">${p.type}</div>
+        </div>
+        <span class="rag-badge ${p.rag}">${ragLabel[p.rag]}</span>
+      </div>
+      <div class="pcard-stats">
+        <div class="ps"><div class="ps-val" style="color:${p.color}">${p.interactions}</div><div class="ps-lbl">Interactions</div></div>
+        <div class="ps"><div class="ps-val">${p.stakeholders}</div><div class="ps-lbl">Stakeholders</div></div>
+        <div class="ps"><div class="ps-val" style="color:${p.overdue>0?'var(--red)':'var(--body)'}">${p.overdue}</div><div class="ps-lbl">Overdue</div></div>
+        <div class="ps"><div class="ps-val" style="color:var(--body)">${pct}%</div><div class="ps-lbl">Commit rate</div></div>
+      </div>
+      <div class="pcard-bar-bg"><div class="pcard-bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
+      <div class="pcard-reason ${p.rag}">${p.ragReason}</div>
+      <div class="view-link">&#8594; View detail</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStackedBar(fp) {
+  const issMap={};
+  fp.forEach(p=>p.issues.forEach(iss=>{
+    if(!issMap[iss]) issMap[iss]={};
+    Object.entries(p.issueCats[iss]||{}).forEach(([cat,n])=>{ issMap[iss][cat]=(issMap[iss][cat]||0)+n; });
+  }));
+  const top = Object.entries(issMap).map(([iss,cats])=>({iss,cats,tot:Object.values(cats).reduce((a,b)=>a+b,0)})).sort((a,b)=>b.tot-a.tot).slice(0,5);
+  const mx = top[0]?.tot||1;
+  const usedCats = [...new Set(top.flatMap(x=>Object.keys(x.cats)))];
+  document.getElementById('stacked-bar').innerHTML = top.map(({iss,cats,tot})=>{
+    const segs = usedCats.map(cat=>{
+      const n=cats[cat]||0, w=Math.round(n/mx*100);
+      return w>0?`<div class="sb-seg" style="width:${w}%;background:${CAT_COLORS[cat]||'#ccc'}" title="${cat}: ${n}"></div>`:'';
+    }).join('');
+    return `<div class="sb-row" onclick="drillIssue('${iss.replace(/'/g,"\\'")}')">
+      <div class="sb-lbl">${iss}</div><div class="sb-track">${segs}</div><div class="sb-tot">${tot}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('sb-legend').innerHTML = usedCats.map(cat=>`<span class="sli"><span class="sld" style="background:${CAT_COLORS[cat]||'#ccc'}"></span>${cat}</span>`).join('');
+}
+
+function renderCrateList(fp) {
+  document.getElementById('crate-list').innerHTML = fp.map(p=>{
+    const tot=p.openCommits+p.doneCommits, pct=tot>0?Math.round(p.doneCommits/tot*100):0;
+    return `<div class="crate-row">
+      <div class="crate-name"><span class="cdot" style="background:${p.color}"></span>${p.name.split(' ').slice(0,4).join(' ')}</div>
+      <div class="crate-bg"><div class="crate-fill" style="width:${pct}%;background:${p.color}"></div></div>
+      <div class="crate-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCommits(fp) {
+  const names = new Set(fp.map(p=>p.name));
+  const pm={};
+  P.forEach(p=>{pm[p.name]=p;});
+  const filtered = COMMITS.filter(c=>names.has(c.proj));
+  const maxOver = Math.max(...filtered.map(c=>c.daysOver), 1);
+  document.getElementById('commit-list').innerHTML = filtered.map(c=>{
+    const p=pm[c.proj];
+    const due = c.status==='over'
+      ? `<span style="color:var(--red);font-weight:700">${c.daysOver}d overdue</span>`
+      : c.status==='done' ? `<span style="color:var(--accent)">Done ${c.due}</span>` : `Due ${c.due}`;
+    const urgencyBar = c.status==='over'
+      ? `<div class="overdue-bar-wrap"><div class="overdue-bar" style="width:${Math.round(c.daysOver/maxOver*100)}%"></div></div>`
+      : ``;
+    return `<div class="commit-row-item">
+      <div class="commit-text">${c.text}</div>
+      <div class="commit-proj"><span class="cdot" style="background:${p?.color||'#888'}"></span>${c.proj}</div>
+      <div class="commit-due">${due}</div>
+      <div class="commit-who">${c.assignee}</div>
+      <div class="commit-status-col">
+        ${urgencyBar}
+        <span class="cs-pill ${c.status==='done'?'cs-done':c.status==='prog'?'cs-prog':'cs-over'}">${c.status==='done'?'Done':c.status==='prog'?'In prog':'Overdue'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderChart(fp, periodMonths) {
+  if (chartInst) chartInst.destroy();
+  const dashPatterns = [[],[5,3],[2,2],[8,3,2,3]];
+  const pointStyles = ['circle','circle','rect','triangle'];
+  chartInst = new Chart(document.getElementById('chart1'),{
+    type:'line',
+    data:{labels:periodMonths,datasets:fp.map((p,i)=>({
+      label:p.name, data:getMonthData(p,periodMonths),
+      borderColor:p.color, backgroundColor:'transparent', borderWidth:2,
+      borderDash: dashPatterns[i % dashPatterns.length],
+      pointStyle: pointStyles[i % pointStyles.length],
+      pointBackgroundColor:'#fff', pointBorderColor:p.color,
+      pointBorderWidth:2, pointRadius:4, pointHoverRadius:6, tension:0.35
+    }))},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9,family:'Segoe UI'},color:'#8B92A5'},border:{display:false}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9,family:'Segoe UI'},color:'#8B92A5'},beginAtZero:true,border:{display:false},title:{display:true,text:'Interactions',font:{size:9},color:'#8B92A5'}}
+      }
+    }
+  });
+  document.getElementById('line-legend').innerHTML = fp.map((p,i)=>{
+    const dash = dashPatterns[i % dashPatterns.length];
+    const dashStyle = dash.length ? `stroke-dasharray="${dash.join(' ')}"` : '';
+    return `<span class="sli">
+      <svg width="18" height="10" style="margin-right:4px;vertical-align:middle"><line x1="0" y1="5" x2="18" y2="5" stroke="${p.color}" stroke-width="2" ${dashStyle}/></svg>
+      <span style="font-size:10px;color:var(--muted)">${p.name.split(' ').slice(0,3).join(' ')}</span>
+    </span>`;
+  }).join('');
+}
+
+function drillProj(id) {
+  const p = P.find(x=>x.id===id);
+  hideDrills();
+  const el = document.getElementById('proj-drill');
+  el.classList.add('open');
+  const tot=p.openCommits+p.doneCommits, pct=tot>0?Math.round(p.doneCommits/tot*100):0;
+  const ragLabel={r:'Red',a:'Amber',g:'Green'};
+  el.innerHTML=`
+    <div class="drill-head">
+      <div><div style="display:flex;align-items:center;gap:8px"><div class="drill-title">${p.name}</div><span class="rag-badge ${p.rag}">${ragLabel[p.rag]}</span></div><div class="drill-sub">${p.type}</div></div>
+      <button class="close-btn" onclick="hideDrills()">&#x2715; Close</button>
+    </div>
+    <div class="pcard-reason ${p.rag}" style="margin-bottom:12px">${p.ragReason}</div>
+    <div class="dm-grid">
+      <div class="dmc"><div class="dmc-l">Interactions</div><div class="dmc-v" style="color:${p.color}">${p.interactions}</div></div>
+      <div class="dmc"><div class="dmc-l">Stakeholders</div><div class="dmc-v" style="color:var(--body)">${p.stakeholders}</div></div>
+      <div class="dmc"><div class="dmc-l">Commit rate</div><div class="dmc-v" style="color:var(--body)">${pct}%</div></div>
+      <div class="dmc"><div class="dmc-l">Overdue</div><div class="dmc-v" style="color:${p.overdue>0?'var(--red)':'var(--body)'}">${p.overdue}</div></div>
+    </div>
+    <div class="drill-cols">
+      <div>
+        <div class="drill-col-title">Issues raised</div>
+        ${p.issues.map((iss,i)=>{const mx=p.ic[0]||1;return `<div class="irow"><div style="font-size:11px;width:140px;flex-shrink:0">${iss}</div><div class="ibar-bg"><div class="ibar" style="width:${Math.round(p.ic[i]/mx*100)}%;background:${p.color}"></div></div><div style="font-size:10px;color:var(--muted);width:22px;text-align:right">${p.ic[i]}</div></div>`;}).join('')}
+      </div>
+      <div>
+        <div class="drill-col-title">Recent interactions</div>
+        ${p.timeline.map(t=>`<div class="tl-row"><div class="tl-date">${t.date}</div><div class="tl-dot" style="background:${p.color}"></div><div><div class="tl-text">${t.text}</div><div class="tl-type">${t.type}</div></div></div>`).join('')}
+      </div>
+    </div>`;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function drillIssue(iss) {
+  hideDrills();
+  const fp=fps(), stks=[];
+  fp.forEach(p=>{ if(p.issueDetail[iss]) p.issueDetail[iss].forEach(s=>stks.push({...s,proj:p.name,color:p.color})); });
+  const el=document.getElementById('issue-drill');
+  el.classList.add('open');
+  const cats={};
+  stks.forEach(s=>{cats[s.cat]=(cats[s.cat]||0)+1;});
+  const sum=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`${n} ${c}`).join(', ');
+  el.innerHTML=`
+    <div class="drill-head">
+      <div><div class="drill-title">${iss}</div><div class="drill-sub">${stks.length} stakeholder record${stks.length!==1?'s':''} · ${sum}</div></div>
+      <button class="close-btn" onclick="hideDrills()">&#x2715; Close</button>
+    </div>
+    <div style="border-top:1px solid var(--divider)">
+      <div class="stk-hdr"><div style="flex:1">Stakeholder</div><div style="width:100px">Category</div><div style="width:150px;text-align:right">Project</div></div>
+      ${stks.map(s=>`<div class="stk-row"><div style="flex:1">${s.name}</div><div style="width:100px"><span class="cat-pill" style="background:${CAT_COLORS[s.cat]||'#eee'}22;color:${CAT_COLORS[s.cat]||'#888'}">${s.cat}</span></div><div style="width:150px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:5px"><span class="cdot" style="background:${s.color}"></span><span style="color:var(--muted);font-size:10px">${s.proj}</span></div></div>`).join('')}
+    </div>`;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function hideDrills() {
+  ['proj-drill','issue-drill'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('open');el.innerHTML='';});
+}
+
+render();
+</script>
+
+
+</body></html>
